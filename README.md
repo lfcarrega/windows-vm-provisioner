@@ -31,9 +31,8 @@ Windows instalado e configurado
 ├── recreate_winpe_uefi.sh       # Gera a ISO WinPE customizada com suporte UEFI  
 ├── win.sh                # Sobe a VM via QEMU com TPM, UEFI e modo spoof opcional  
 ├── overlay/  
-│   ├── install.ps1  
-│   └── Windows/System32/startnet.cmd  # Inicialização do WinPE: carrega drivers, monta Samba e inicia PowerShell 7  
-│   └── install.ps1      # Script PowerShell executado no WinPE para aplicar a imagem  
+│   └── Windows/System32/startnet.cmd  # Inicialização do WinPE: carrega drivers, monta Samba e inicia PowerShell 7
+│   └── tools/pwsh       # PowerShell 7 que vai ser usado no ambiente do WinPE
 ├── diskpart.txt         # Particionamento GPT (EFI + Windows)  
 ├── unattend.xml         # Instalação desassistida (OOBE, autologon, first logon)  
 └── setup_system.ps1     # Configurações pós-instalação (executado no primeiro boot)  
