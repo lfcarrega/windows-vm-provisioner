@@ -26,6 +26,7 @@ Windows instalado e configurado
     `setup_system.ps1`, `win2k25.wim` e os drivers VirtIO extraídos  
 
 ## Estrutura
+```
 .  
 ├── recreate_winpe_uefi.sh       # Gera a ISO WinPE customizada com suporte UEFI  
 ├── win.sh                # Sobe a VM via QEMU com TPM, UEFI e modo spoof opcional  
@@ -37,6 +38,7 @@ Windows instalado e configurado
 ├── diskpart.txt         # Particionamento GPT (EFI + Windows)  
 ├── unattend.xml         # Instalação desassistida (OOBE, autologon, first logon)  
 └── setup_system.ps1     # Configurações pós-instalação (executado no primeiro boot)  
+```
 
 ## Uso
 
