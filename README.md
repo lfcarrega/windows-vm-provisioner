@@ -5,39 +5,38 @@ Cria uma ISO WinPE customizada com suporte UEFI, sobe a VM com hardware emulado 
 a instalação desassistida do Windows com drivers VirtIO e particionamento automático.
 
 ## Visão geral
-build_winpe.sh → winpe_uefi.iso
-↓
-win.sh [drive] [os_iso] [virtio_iso] [unattend_iso]
-↓
-Windows instalado e configurado
+build_winpe.sh → winpe_uefi.iso  
+↓  
+win.sh [drive] [os_iso] [virtio_iso] [unattend_iso]  
+↓  
+Windows instalado e configurado  
 
 ## Pré-requisitos
 
-- `qemu` / `qemu-system-x86_64`
-- `swtpm` (TPM emulado)
-- `mkwinpeimg` (do pacote `wimlib`)
-- `xorriso`
-- `edk2-ovmf` (firmware UEFI)
-- ISO do Windows (testado com Windows Server 2025 Eval)
-- ISO do [VirtIO drivers](https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/)
-- Samba configurado com compartilhamento `winpe` acessível em `\\10.0.2.2\winpe`
-  - Usuário: `winpe` / Senha: `winpe` (ou ajuste em `startnet.cmd`)
-  - O compartilhamento deve conter: `install.ps1`, `diskpart.txt`, `unattend.xml`, 
-    `setup_system.ps1`, `win2k25.wim` e os drivers VirtIO extraídos
+- `qemu` / `qemu-system-x86_64`  
+- `swtpm` (TPM emulado)  
+- `mkwinpeimg` (do pacote `wimlib`)  
+- `xorriso`  
+- `edk2-ovmf` (firmware UEFI)  
+- ISO do Windows (testado com Windows Server 2025 Eval)  
+- ISO do [VirtIO drivers](https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/)  
+- Samba configurado com compartilhamento `winpe` acessível em `\\10.0.2.2\winpe`  
+  - Usuário: `winpe` / Senha: `winpe` (ou ajuste em `startnet.cmd`)  
+  - O compartilhamento deve conter: `install.ps1`, `diskpart.txt`, `unattend.xml`,  
+    `setup_system.ps1`, `win2k25.wim` e os drivers VirtIO extraídos  
 
 ## Estrutura
 .
-├── recreate_winpe_uefi.sh       # Gera a ISO WinPE customizada com suporte UEFI
-├── win.sh                # Sobe a VM via QEMU com TPM, UEFI e modo spoof opcional
-├── overlay/
-│   ├── install.ps1
-│   └── Windows/System32/startnet.cmd  # Inicialização do WinPE: carrega drivers, 
-│                                       # monta Samba e inicia PowerShell 7
-│   └── install.ps1      # Script PowerShell executado no WinPE para aplicar a imagem
-├── diskpart.txt         # Particionamento GPT (EFI + Windows)
-├── unattend.xml         # Instalação desassistida (OOBE, autologon, first logon)
-└── setup_system.ps1     # Configurações pós-instalação (executado no primeiro boot)
-
+├── recreate_winpe_uefi.sh       # Gera a ISO WinPE customizada com suporte UEFI  
+├── win.sh                # Sobe a VM via QEMU com TPM, UEFI e modo spoof opcional  
+├── overlay/  
+│   ├── install.ps1  
+│   └── Windows/System32/startnet.cmd  # Inicialização do WinPE: carrega drivers,  
+│                                       # monta Samba e inicia PowerShell 7  
+│   └── install.ps1      # Script PowerShell executado no WinPE para aplicar a imagem  
+├── diskpart.txt         # Particionamento GPT (EFI + Windows)  
+├── unattend.xml         # Instalação desassistida (OOBE, autologon, first logon)  
+└── setup_system.ps1     # Configurações pós-instalação (executado no primeiro boot)  
 
 ## Uso
 
