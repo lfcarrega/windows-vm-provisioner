@@ -44,12 +44,12 @@ Windows instalado e configurado
 
 ### 1. Gerar a ISO WinPE
 ```bash
-./build_winpe.sh
+./recreate_winpe_uefi.sh
 # Gera: winpe_uefi.iso
 ```
 
 Necessário ter a ISO do Windows no mesmo diretório como `win2025-eval.iso` e os arquivos
-do diretório `overlay/` prontos.
+do diretório `overlay/` prontos. Principalmente o `startnet.cmd` que é o 'iniciador' de todo o processo.
 
 ### 2. Configurar a senha
 
@@ -65,18 +65,19 @@ net user Administrator "<ADMINISTRATOR_PASSWORD>"
 
 ### 3. Subir a VM
 ```bash
-./vm.sh /dev/sdX win2025-eval.iso virtio-win.iso unattend.iso
+./win.sh /dev/sdX win2025-eval.iso virtio-win.iso unattend.iso
 ```
 
 **Modo spoof** — emula hardware Dell OptiPlex com SMBIOS, MAC e serial aleatórios:
 ```bash
-SPOOF=1 ./vm.sh /dev/sdX win2025-eval.iso virtio-win.iso unattend.iso
+SPOOF=1 ./win.sh /dev/sdX win2025-eval.iso virtio-win.iso unattend.iso
 ```
 
 ## O que acontece durante a instalação
 
 1. WinPE inicializa via UEFI
-2. `install.ps1` executa automaticamente:
+2. `startnet.cmd` é chamado automaticamente pelo WinPE
+3. Com o CMD aberto você chama o `install.ps1` que faz a instalação dessa forma:
    - Particiona o disco via `diskpart`
    - Aplica a imagem Windows via DISM
    - Injeta drivers VirtIO (vioscsi, viostor, NetKVM)
@@ -93,3 +94,4 @@ SPOOF=1 ./vm.sh /dev/sdX win2025-eval.iso virtio-win.iso unattend.iso
 - Modo spoof (`SPOOF=1`) usa VGA padrão + e1000e; modo normal usa VirtIO + SPICE
 - O WinPE monta automaticamente o compartilhamento Samba do host (`10.0.2.2` é o gateway padrão da rede NAT do QEMU) — todos os scripts e a imagem `.wim` são lidos de lá, sem precisar embutir na ISO
 - O compartilhamento Samba usa `10.0.2.2` (gateway NAT padrão do QEMU). Para usar fora do QEMU ou com rede diferente, ajuste o endereço em `overlay/Windows/System32/startnet.cmd`
+- O SAMBA não é obrigatório, você pode embutir tudo que precisa dentro da ISO, basta adicionar na pasta overlay e ajustar a lógica dos seus scripts.
