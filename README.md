@@ -33,9 +33,12 @@ Windows instalado e configurado
 ├── overlay/  
 │   └── Windows/System32/startnet.cmd  # Inicialização do WinPE: carrega drivers, monta Samba e inicia PowerShell 7
 │   └── tools/pwsh       # PowerShell 7 que vai ser usado no ambiente do WinPE
-├── diskpart.txt         # Particionamento GPT (EFI + Windows)  
-├── unattend.xml         # Instalação desassistida (OOBE, autologon, first logon)  
-└── setup_system.ps1     # Configurações pós-instalação (executado no primeiro boot)  
+├── samba/
+│   └── install.ps1          # Script PowerShell executado no WinPE para aplicar a imagem
+│   └── diskpart.txt         # Particionamento GPT (EFI + Windows)  
+│   └── unattend.xml         # Instalação desassistida (OOBE, autologon, first logon)  
+└── └── setup_system.ps1     # Configurações pós-instalação (executado no primeiro boot)  
+
 ```
 
 ## Uso
