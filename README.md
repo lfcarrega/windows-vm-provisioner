@@ -91,3 +91,4 @@ SPOOF=1 ./vm.sh /dev/sdX win2025-eval.iso virtio-win.iso unattend.iso
 - O TPM é emulado via `swtpm` e encerrado automaticamente ao fim da sessão
 - Modo spoof (`SPOOF=1`) usa VGA padrão + e1000e; modo normal usa VirtIO + SPICE
 - O WinPE monta automaticamente o compartilhamento Samba do host (`10.0.2.2` é o gateway padrão da rede NAT do QEMU) — todos os scripts e a imagem `.wim` são lidos de lá, sem precisar embutir na ISO
+- O compartilhamento Samba usa `10.0.2.2` (gateway NAT padrão do QEMU). Para usar fora do QEMU ou com rede diferente, ajuste o endereço em `overlay/Windows/System32/startnet.cmd`
