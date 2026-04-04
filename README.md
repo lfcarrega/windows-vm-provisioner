@@ -32,8 +32,7 @@ Windows instalado e configurado
 ├── win.sh                # Sobe a VM via QEMU com TPM, UEFI e modo spoof opcional  
 ├── overlay/  
 │   ├── install.ps1  
-│   └── Windows/System32/startnet.cmd  # Inicialização do WinPE: carrega drivers,  
-│                                       # monta Samba e inicia PowerShell 7  
+│   └── Windows/System32/startnet.cmd  # Inicialização do WinPE: carrega drivers, monta Samba e inicia PowerShell 7  
 │   └── install.ps1      # Script PowerShell executado no WinPE para aplicar a imagem  
 ├── diskpart.txt         # Particionamento GPT (EFI + Windows)  
 ├── unattend.xml         # Instalação desassistida (OOBE, autologon, first logon)  
