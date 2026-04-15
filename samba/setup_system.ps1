@@ -6,7 +6,7 @@ Remove-Item C:\secpol.cfg
 
 # enable builtin admin
 net user Administrator /active:yes
-net user Administrator "inxad7nncm"
+net user Administrator "<SUA_SENHA>"
 
 # remove itself when done
 Remove-Item "C:\setup_system.ps1" -Force
