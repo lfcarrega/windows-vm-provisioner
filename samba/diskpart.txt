@@ -1,0 +1,11 @@
+select disk 0
+clean
+convert gpt
+create partition efi size=100
+create partition primary
+select partition 1
+format quick fs=fat32 label=efi
+assign letter=E
+select partition 2
+format quick fs=ntfs label=Windows
+assign letter=C
