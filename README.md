@@ -41,7 +41,6 @@ server:
 	darkhttpd server/
 ```
 
-
 4. Run make:
 ```sh
 # to build the ISO
@@ -52,7 +51,7 @@ make build BASE_ISO=../../Downloads/26100.32230.260111-0550.lt_release_svc_refre
 make deploy
 ```
 
-5. Go into your WinPE machine, make sure its connected to the network and get the IP address (the `startnet.cmd` is configured to print this information automatically)
+5. Go into your WinPE machine, make sure it's connected to the network and get the IP address (the `startnet.cmd` is configured to print this information automatically)
 
 6. Now you can control this machine remotely with `curl`, change `@server/test.ps1` to your real deploy script:
 ```sh
@@ -61,10 +60,12 @@ curl -X POST http://192.168.15.121:8080/ --data-binary @server/test.ps1 -H "Cont
 
 ## Good to Know
 
-* `Write-Host` will print it's content to the `cmd` screen, not to the `curl` output
+* `Write-Host` will print its content to the `cmd` screen, not to the `curl` output
 * You can fire a HTTP file server on your "controller" and send files to the WinPE machine, there is an action called `server:` in the Makefile - you'll need `darkhttpd`, but feel free to change it
 * If something goes wrong while building the ISO, you can check the log file `src/log`
 * You can use the great script `mido.sh` created by @ElliotKillick to automatically download Windows ISOs
+* Adapt the `src/overlay/` as you wish
+* Check out the `src/server/` dir, there is a barebones deployment script there
 
 ## TODO
 
