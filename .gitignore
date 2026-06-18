@@ -2,6 +2,10 @@ src/scripts/log
 
 *.iso
 *.zip
+*.key
+*.crt
+*.csr
+*.srl
 
 src/iso/*
 src/out/*
