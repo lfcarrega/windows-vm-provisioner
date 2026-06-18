@@ -6,4 +6,4 @@ src/scripts/log
 src/iso/*
 src/out/*
 src/tmp/*
-src/resources/
+src/resources/*
