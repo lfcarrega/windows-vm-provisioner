@@ -1,8 +1,9 @@
-log
+src/scripts/log
 
 *.iso
 *.zip
 
-iso/*
-out/
-tmp/
+src/iso/*
+src/out/*
+src/tmp/*
+src/resources/

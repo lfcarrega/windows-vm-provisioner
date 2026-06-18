@@ -1,0 +1,3 @@
+src/overlay/tools/pwsh/* linguist-vendored
+src/overlay/tools/virtio-win/* linguist-vendored
+src/overlay/scripts/mido.sh linguist-vendored
