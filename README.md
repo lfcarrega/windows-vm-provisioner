@@ -1,5 +1,17 @@
 # windows-vm-provisioner
 
+## Why
+
+Because I wanted an easy way to fully deploy Windows machines without relying on Windows-only toolkits or cloud solutions.
+
+## How It Works
+
+- A Windows PE is built from a full Windows Installation ISO
+- The `src/overlay/` dir is injected into the final WinPE ISO
+- The `src/overlay/Windows/System32/startnet.cmd` fires up with the provided logic
+- A HTTP listener starts running on the WinPE
+- You can control it remotely via `curl` and PowerShell scripts
+
 ## Usage
 
 1. Clone this repo and cd into the `src` dir:
