@@ -1,0 +1,8 @@
+log
+
+*.iso
+*.zip
+
+iso/*
+out/
+tmp/
