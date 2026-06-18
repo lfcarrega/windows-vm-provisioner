@@ -65,7 +65,7 @@ curl -X POST http://192.168.15.121:8080/ --data-binary @server/test.ps1 -H "Cont
 * If something goes wrong while building the ISO, you can check the log file `src/log`
 * You can use the great script `mido.sh` created by @ElliotKillick to automatically download Windows ISOs
 * Adapt the `src/overlay/` as you wish
-* Check out the `src/server/` dir, there is a barebones deployment script there
+* Check out the `src/server/` dir, you can find a barebones deployment script there
 
 ## TODO
 
