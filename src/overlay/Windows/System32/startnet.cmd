@@ -9,4 +9,4 @@ wpeutil disablefirewall
 
 ipconfig
 
-X:\tools\pwsh\pwsh.exe -NoExit -Command "& X:\tools\listener.ps1"
+X:\tools\agent.exe

@@ -1,11 +1,13 @@
-src/scripts/log
-
 *.iso
 *.zip
 *.key
 *.crt
 *.csr
 *.srl
+*.log
+*.wim
+
+env.yaml
 
 src/iso/*
 src/out/*

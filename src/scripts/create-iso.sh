@@ -29,7 +29,7 @@ base_iso="$(realpath ${1})"
 output_iso="$(realpath -m ${2})"
 output_dir="$(dirname ${output_iso})"
 overlay_dir="$(realpath ${3})"
-log_file="${script_dir}/log"
+log_file="${script_dir}/$(basename ${0}).log"
 
 log() {
   local mode="${1:-normal}"

@@ -6,7 +6,7 @@ BASE_ISO ?= iso/win.iso
 OUT_ISO ?= out/winpe.iso
 OVERLAY_DIR ?= overlay
 
-.PHONY: build build_debug deploy server
+.PHONY: build build_agent build_debug deploy deploy_agent server
 
 all: build
 
@@ -21,6 +21,6 @@ build_debug:
 deploy:
 	@echo "Copying files to ${REMOTE_USER}@${REMOTE_ADDRESS}:${REMOTE_PATH}"
 	scp $(OUT_ISO) ${REMOTE_USER}@${REMOTE_ADDRESS}:${REMOTE_PATH}
-
+	
 server:
 	darkhttpd server/

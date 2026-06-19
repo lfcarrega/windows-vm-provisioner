@@ -1,0 +1,66 @@
+- name: "Loading device data ({{ machine_file.path | basename }})"
+  ansible.builtin.include_vars:
+    file: "{{ machine_file.path }}"
+    name: "winpe_data"
+
+- name: "Define target address: {{ winpe_data.Computer.Name }}"
+  ansible.builtin.set_fact:
+    target_ip: "{{ winpe_data.Network.IPv4Address }}"
+
+- name: "Wait for the agent to respond {{ target_ip }}:{{ winpe_port }}"
+  ansible.builtin.wait_for:
+    host: "{{ target_ip }}"
+    port: "{{ winpe_port }}"
+    delay: 10
+    timeout: 300
+
+- name: "Show available disks {{ winpe_data.Computer.Name }}"
+  ansible.builtin.debug:
+    msg: >
+      [Disk {{ my_idx }}] - Model: {{ item.Model }} - Size: {{ (item.Size | int / 1024 / 1024 / 1024) | round(2) }} GB (Interface: {{ item.InterfaceType }})
+  loop: "{{ (winpe_data.Disks | type_debug == 'dict') | ternary([winpe_data.Disks], winpe_data.Disks) }}"
+  loop_control:
+    index_var: my_idx
+
+- name: "WAITING: Select the target disk {{ winpe_data.Computer.Name }}"
+  ansible.builtin.pause:
+    prompt: "Type the disk number"
+  register: selected_disk
+
+- name: "Define disk index"
+  ansible.builtin.set_fact:
+    target_disk_index: "{{ selected_disk.user_input | int }}"
+
+- name: "Build target deploy script"
+  ansible.builtin.template:
+    src: templates/deploy.ps1.j2
+    dest: "/tmp/deploy_{{ winpe_data.Computer.Name }}.ps1"
+
+- name: "Send script to {{ winpe_data.Computer.Name }}"
+  ansible.builtin.uri:
+    url: "https://{{ target_ip }}:{{ winpe_port }}/"
+    method: POST
+    headers:
+      Content-Type: "text/plain; charset=utf-8"
+      X-Auth-Token: "{{ auth_token }}"
+    src: "/tmp/deploy_{{ winpe_data.Computer.Name }}.ps1"
+    return_content: true
+    validate_certs: false
+    timeout: 1800
+  register: winpe_output
+
+- name: "Show script log {{ winpe_data.Computer.Name }}"
+  ansible.builtin.debug:
+    msg: "{{ winpe_output.content }}"
+
+# - name: "Ensure the processed dir exists"
+#   ansible.builtin.file:
+#     path: "{{ playbook_dir | dirname }}/server/inventory/processed"
+#     state: directory
+#     mode: '0755'
+
+# - name: "Move inventory from {{ winpe_data.Computer.Name }} to the processed dir"
+#   ansible.builtin.command:
+#     cmd: "mv {{ machine_file.path }} {{ playbook_dir | dirname }}/server/inventory/processed/"
+#   register: mover_resultado
+#   changed_when: mover_resultado.rc == 0

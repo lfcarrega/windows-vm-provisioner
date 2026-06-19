@@ -1,0 +1,22 @@
+---
+- name: WinPE Provisioner
+  hosts: localhost
+  gather_facts: false
+  vars:
+    inventory_dir: "{{ playbook_dir | dirname }}/server/inventory"
+
+  vars_files:
+    - env.yaml
+
+  tasks:
+    - name: Find inventory files
+      ansible.builtin.find:
+        paths: "{{ inventory_dir }}"
+        patterns: "*.json"
+      register: inventory_files
+
+    - name: Process each found inventory file
+      ansible.builtin.include_tasks: processor.yaml
+      loop: "{{ inventory_files.files }}"
+      loop_control:
+        loop_var: machine_file

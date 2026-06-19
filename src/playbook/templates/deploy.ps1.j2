@@ -1,0 +1,128 @@
+$diskpartScript = @"
+select disk {{ target_disk_index }}
+clean
+convert gpt
+create partition efi size=100
+format quick fs=fat32 label="System"
+assign letter="S"
+create partition msr size=16
+create partition primary
+format quick fs=ntfs label="Windows"
+assign letter="C"
+"@
+
+$unattendXml = @"
+<?xml version="1.0" encoding="utf-8"?>
+<unattend xmlns="urn:schemas-microsoft-com:unattend" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
+  <settings pass="oobeSystem">
+    <component name="Microsoft-Windows-Shell-Setup"
+               processorArchitecture="amd64"
+               publicKeyToken="31bf3856ad364e35"
+               language="neutral"
+               versionScope="nonSxS">
+      <OOBE>
+        <HideEULAPage>true</HideEULAPage>
+        <HideLocalAccountScreen>true</HideLocalAccountScreen>
+        <HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
+        <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
+        <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+        <SkipMachineOOBE>true</SkipMachineOOBE>
+        <SkipUserOOBE>true</SkipUserOOBE>
+        <ProtectYourPC>3</ProtectYourPC>
+      </OOBE>
+      <UserAccounts>
+        <AdministratorPassword>
+          <Value>{{ admin_pwd }}</Value>
+          <PlainText>true</PlainText>
+        </AdministratorPassword>
+      </UserAccounts>
+      <AutoLogon>
+        <Username>Administrator</Username>
+        <Enabled>true</Enabled>
+        <LogonCount>1</LogonCount>
+        <Password>
+          <Value>{{ admin_pwd }}</Value>
+          <PlainText>true</PlainText>
+        </Password>
+      </AutoLogon>
+      <FirstLogonCommands>
+        <SynchronousCommand wcm:action="add">
+          <Order>1</Order>
+          <CommandLine>powershell.exe -WindowStyle "Normal" -ExecutionPolicy "Unrestricted" -NoProfile -File "C:\first_logon.ps1"</CommandLine>
+        </SynchronousCommand>
+      </FirstLogonCommands>
+    </component>
+  </settings>
+</unattend>
+"@
+
+$setupSystemScript = @"
+# Aguarda o sistema estabilizar um pouco no primeiro boot
+Start-Sleep -Seconds 5
+
+# disable password complexity
+secedit /export /cfg C:\secpol.cfg
+(Get-Content C:\secpol.cfg) -replace "PasswordComplexity = 1", "PasswordComplexity = 0" | Set-Content C:\secpol.cfg
+secedit /configure /db C:\Windows\security\local.sdb /cfg C:\secpol.cfg /quiet
+Remove-Item C:\secpol.cfg
+
+# enable builtin admin
+net user Administrator /active:yes
+net user Administrator "{{ admin_pwd }}"
+
+# remove em si mesmo ao terminar
+reg delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v Setup /f
+Remove-Item "C:\setup_system.ps1" -Force
+"@
+
+$firstLogonScript = @"
+# Seus comandos pós-logon (Instalar pacotes, rodar agente de monitoramento, etc.)
+Write-Output "Logon efetuado com sucesso como Administrador!"
+"@
+
+# 1. Executa Particionamento
+$diskpartScript | diskpart.exe
+
+# 2. Baixa imagem
+Write-Output "Baixando imagem..."
+Invoke-WebRequest -Uri "{{ http_server }}/{{ wimfile }}" -OutFile "C:\install.wim"
+
+# 3. Aplica Imagem
+Write-Output "Aplicando imagem..."
+dism /Apply-Image /ImageFile:"C:\install.wim" /Index:4 /ApplyDir:"C:\"
+
+# 4. Configura Bootloader
+Write-Output "Configurando BCD..."
+bcdboot C:\Windows /s S: /f UEFI
+
+# 5. Injeta Drivers VirtIO
+Write-Output "Injetando drivers..."
+dism /image:"C:\" /Add-Driver /Driver:"X:\virtio-win\vioscsi\2k25\amd64\vioscsi.inf"
+dism /image:"C:\" /Add-Driver /Driver:"X:\virtio-win\viostor\2k25\amd64\viostor.inf"
+dism /image:"C:\" /Add-Driver /Driver:"X:\virtio-win\NetKVM\2k25\amd64\netkvm.inf"
+
+# 6. Salva Unattend
+$pantherPath = "C:\Windows\Panther"
+if (-not (Test-Path $pantherPath)) {
+    New-Item -ItemType Directory -Path $pantherPath -Force
+}
+$unattendXml | Out-File -FilePath "$pantherPath\unattend.xml" -Encoding utf8
+
+# 7. Modifica Registro Offline para injetar o script de Setup do Sistema
+Write-Output "Modificando registro offline..."
+reg load HKLM\OFFLINE C:\Windows\System32\config\SOFTWARE
+
+$setupSystemScript | Out-File -FilePath "C:\setup_system.ps1" -Encoding utf8
+$firstLogonScript | Out-File -FilePath "C:\first_logon.ps1" -Encoding utf8
+
+# Adiciona o comando Run apontando para o script local
+reg add "HKLM\OFFLINE\Microsoft\Windows\CurrentVersion\Run" /v Setup /t REG_SZ /d "powershell -ExecutionPolicy Bypass -File C:\setup_system.ps1" /f
+
+# Descarrega a colmeia para salvar as alterações no disco
+reg unload HKLM\OFFLINE
+
+# 8. Limpeza do WIM temporário para liberar espaço
+Write-Output "Limpando arquivos temporários..."
+Remove-Item -Path "C:\install.wim" -Force
+
+Write-Output "=== PROVISIONAMENTO CONCLUÍDO COM SUCESSO ==="
